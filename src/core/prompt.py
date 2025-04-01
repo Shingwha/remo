@@ -54,13 +54,22 @@ If you want to use multiple tools, you can directly output the structured parame
 '''
 
 class ToolPrompt(BasePrompt):
-    name: str = "TOOL"
-    description: str
-    parameters: list
-    usage: str
+    tool:object
 
     def __init__(self, **data):
         super().__init__(**data)
+        self.name = self.tool.name
+        self.description = self.tool.description
+        self.parameters = self.parse_tool_parameters()
+        self.usage = self.tool.usage
+
+    def parse_tool_parameters(self):
+        params_str = []
+        for param in self.tool.parameters:
+            required = "(required)" if param.get('required', False) else "(optional)"
+            param_desc = param.get('description', '')
+            params_str.append(f"- {param['name']}:{required} {param_desc}")
+        return "\n".join(params_str)
 
     def __str__(self):
         return f"""
@@ -73,13 +82,18 @@ Usage: {self.usage}
 class ToolsPrompt(BasePrompt):
     name: str = "Tools"
     tools: list
+    tool_use_prompt: ToolUsePrompt
 
     def __init__(self, **data):
         super().__init__(**data)
 
     def __str__(self):
-        tools_str = "\n".join(str(tool) for tool in self.tools)
+        tools_str = "\n".join(str(ToolPrompt(tool)) for tool in self.tools)
         return f"""
+{str(self.tool_use_prompt)}
 # {self.name}
 {tools_str}
 """
+
+class MemoryPrompt(BasePrompt):
+    pass
