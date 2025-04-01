@@ -24,7 +24,10 @@ class ToolUsePrompt(BasePrompt):
     
     def __init__(self):
         self.name: str = "TOOL USE"
-        self.description: str = "When you are unsure about certain information or need to perform specific actions, you can use the tools according to the following requirements."
+        self.description: str = """
+When you are unsure about certain information or need to perform specific actions, you can use the tools according to the following requirements.
+But if the query of user is not related to tools, please ignore the prompt of this section.
+"""
         self.content: str = '''
 # Tool Use Formatting
 
@@ -87,14 +90,18 @@ class ToolsPrompt(BasePrompt):
     name: str = "Tools"
     def __init__(self,tools):
         self.tool_use_prompt = ToolUsePrompt()
+        self.description = "The tools you have access to:"
         self.tools = tools
 
     def __str__(self):
         tools_str = "\n".join(str(ToolPrompt(tool)) for tool in self.tools)
         return f"""
+====
 {str(self.tool_use_prompt)}
 # {self.name}
+{self.description}
 {tools_str}
+====
 """
 
 if __name__ == "__main__":

@@ -18,10 +18,10 @@ class Agent():
     def generate(self,query:str = None):
         if self.conversation.is_empty():
             if self.tools:
-                self.tools_prompt = str(ToolsPrompt(tools = self.tools))
+                self.tools_prompt = ToolsPrompt(tools = self.tools)
             for prompt in [self.system_prompt,self.tools_prompt,self.content_prompt]:
                 if prompt:
-                    query += prompt + "\n"
+                    query += str(prompt) + "\n"
         self.conversation.add_user_message(query)
         while True:
             response = self.llm.generate(self.conversation.to_dict())
