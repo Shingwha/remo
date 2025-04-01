@@ -2,8 +2,8 @@ from src.core import Agent,OpenAIServer
 from src.tools.calculator import Calculator
 from src.tools.bocha import BochaSearch
 
-llm = OpenAIServer(api_key = "sk-d36f02bd49e64e08becd9c20e5fa7f58",base_url = "https://api.deepseek.com",model_name = "deepseek-chat")
-agent = Agent(llm = llm,tools = [Calculator(),BochaSearch(api_key="sk-30da54e153ac443999f8b2f03be96a27")])
+llm = OpenAIServer(api_key = "",base_url = "https://ark.cn-beijing.volces.com/api/v3",model_name = "doubao-1-5-pro-32k-250115")
+agent = Agent(llm = llm,tools = [Calculator()])
 while True:
     query = input("请输入:")
     agent.generate(query)

@@ -27,6 +27,7 @@ class ToolUsePrompt(BasePrompt):
         self.description: str = """
 When you are unsure about certain information or need to perform specific actions, you can use the tools according to the following requirements.
 But if the query of user is not related to tools, please ignore the prompt of this section.
+Please do not output tool use format you do not want to use a tool actually, or it will cause errors.
 """
         self.content: str = '''
 # Tool Use Formatting
@@ -94,7 +95,7 @@ class ToolsPrompt(BasePrompt):
         self.tools = tools
 
     def __str__(self):
-        tools_str = "\n".join(str(ToolPrompt(tool)) for tool in self.tools)
+        tools_str = "".join(str(ToolPrompt(tool)) for tool in self.tools)
         return f"""
 ====
 {str(self.tool_use_prompt)}
@@ -103,6 +104,3 @@ class ToolsPrompt(BasePrompt):
 {tools_str}
 ====
 """
-
-if __name__ == "__main__":
-    print(ToolsPrompt([]))
