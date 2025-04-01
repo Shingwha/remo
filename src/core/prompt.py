@@ -1,26 +1,31 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class BasePrompt(BaseModel):
-    name: str
-    description: str
-    content: str
-
-    def __init__(self, **data):
-        super().__init__(**data)
+@dataclass
+class BasePrompt():
+    name: str = None
+    description: str = None
+    content: str = None
 
     def __str__(self):
         return f"""
 ====
-{self.name}
-{self.description}
-{self.content}
+{self.name if self.name else ""}
+{self.description if self.description else ""}
+{self.content if self.content else ""} 
 ====
 """
 
+class SystemPrompt(BasePrompt):
+    name: str = "SYSTEM PROMPT"
+
+
+
 class ToolUsePrompt(BasePrompt):
-    name: str = "TOOL USE"
-    description: str = "When you are unsure about certain information or need to perform specific actions, you can use the tools according to the following requirements."
-    content: str = '''
+    
+    def __init__(self):
+        self.name: str = "TOOL USE"
+        self.description: str = "When you are unsure about certain information or need to perform specific actions, you can use the tools according to the following requirements."
+        self.content: str = '''
 # Tool Use Formatting
 
 Tool use is formatted using XML-style tags. The tool name is enclosed in opening and closing tags, and each parameter is similarly enclosed within its own set of tags. Here's the structure:
@@ -53,11 +58,10 @@ If you want to use multiple tools, you can directly output the structured parame
 """
 '''
 
-class ToolPrompt(BasePrompt):
-    tool:object
 
-    def __init__(self, **data):
-        super().__init__(**data)
+class ToolPrompt(BasePrompt):
+    def __init__(self,tool):
+        self.tool = tool
         self.name = self.tool.name
         self.description = self.tool.description
         self.parameters = self.parse_tool_parameters()
@@ -81,11 +85,9 @@ Usage: {self.usage}
 
 class ToolsPrompt(BasePrompt):
     name: str = "Tools"
-    tools: list
-    tool_use_prompt: ToolUsePrompt
-
-    def __init__(self, **data):
-        super().__init__(**data)
+    def __init__(self,tools):
+        self.tool_use_prompt = ToolUsePrompt()
+        self.tools = tools
 
     def __str__(self):
         tools_str = "\n".join(str(ToolPrompt(tool)) for tool in self.tools)
@@ -95,5 +97,5 @@ class ToolsPrompt(BasePrompt):
 {tools_str}
 """
 
-class MemoryPrompt(BasePrompt):
-    pass
+if __name__ == "__main__":
+    print(ToolsPrompt([]))

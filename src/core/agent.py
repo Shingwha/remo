@@ -1,39 +1,37 @@
-from pydantic import BaseModel
 from typing import List, Union,Callable
+from dataclasses import dataclass, field
 from .llm import BaseLLM
 from .message import Conversation
-from .memory import MemoryBank
 from .tool import Tool, execute_tools
 from .utils import parse_response
-from .prompt import ToolsPrompt
+from .prompt import ToolsPrompt,SystemPrompt
 
-class Agent(BaseModel):
+@dataclass
+class Agent():
     llm: BaseLLM
-    tools: List[Union[Tool, Callable]]
-    system_prompt: str = "你是一个智能代理，协调LLM和工具使用"
+    tools: List[Union[Tool, Callable]] = field(default_factory=list)
+    system_prompt: SystemPrompt = None
     content_prompt: str = None
     tools_prompt: ToolsPrompt = None
-    conversation: Conversation
-    memorybank: MemoryBank
-
-    def __init__(self, **data):
-        super().__init__(**data)
+    conversation: Conversation = field(default_factory=Conversation)
 
     def generate(self,query:str = None):
         if self.conversation.is_empty():
-            self.tools_prompt = str(ToolsPrompt(tools = self.tools))
+            if self.tools:
+                self.tools_prompt = str(ToolsPrompt(tools = self.tools))
             for prompt in [self.system_prompt,self.tools_prompt,self.content_prompt]:
                 if prompt:
                     query += prompt + "\n"
         self.conversation.add_user_message(query)
         while True:
-            response = self.llm.generate(str(self.conversation))
+            response = self.llm.generate(self.conversation.to_dict())
             content = response.content
+            self.conversation.add_assistant_message(content)
             tool_calls = parse_response(content)
             if tool_calls:
                 results = execute_tools(tool_calls, self.tools)
-                self.conversation.add_assistant_message(results)
+                self.conversation.add_user_message(str(results))
             else:
-                self.conversation.add_assistant_message(content)
                 break
+
         return content

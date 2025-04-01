@@ -1,11 +1,12 @@
-from pydantic import BaseModel
 from typing import List
+from dataclasses import dataclass
 from openai import OpenAI
 from .message import Conversation
 from typing import Dict, Any, Union
 
 
-class BaseLLM(BaseModel):
+@dataclass
+class BaseLLM:
     api_key: str
     base_url: str
     model_name: str
@@ -14,15 +15,10 @@ class BaseLLM(BaseModel):
     max_tokens: int = None
     top_p: float = None
     frequency_penalty: float = None
-    client = None
-
-    def __init__(self, **data):
-        super().__init__(**data)
+    client: Any = None
 
 
 class OpenAIServer(BaseLLM):
-    def __init__(self, **data):
-        super().__init__(**data)
 
     def generate(
         self,

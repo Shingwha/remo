@@ -1,38 +1,39 @@
-from pydantic import BaseModel
+from dataclasses import dataclass, field
 
 
-class Message(BaseModel):
+
+@dataclass
+class Message():
     role: str
     content: str
 
-
-    def __init__(self, role: str, content: str,**kwargs):
-        super().__init__(role=role, content=content, **kwargs)
-
-    def __str__(self):
+    def to_dict(self):
         return {"role": self.role, "content": self.content}
 
+@dataclass
+class Conversation():
+    messages: list[Message] = field(default_factory=list)
 
-class Conversation(BaseModel):
-    messages: list[Message] = []
 
-    def __str__(self):
-        return [str(message) for message in self.messages]
-    
     def __len__(self):
         return len(self.messages)
     
     def is_empty(self):
         return len(self.messages) == 0
+    
+    def to_dict(self):
+        return [message.to_dict() for message in self.messages]
 
     def add_message(self, message: Message) -> None:
         self.messages.append(message)
 
     def add_user_message(self, content: str) -> None:
         self.add_message(Message(role="user", content=content))
+        print(f"User: {content}")
 
     def add_assistant_message(self, content: str) -> None:
         self.add_message(Message(role="assistant", content=content))
+        print(f"Assistant: {content}")
 
     def clear(self) -> None:
         self.messages = []
