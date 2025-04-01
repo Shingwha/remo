@@ -68,7 +68,6 @@ class ToolPrompt(BasePrompt):
 Description: {self.description}
 Parameters: {self.parameters}
 Usage: {self.usage}
-
 """
 
 class ToolsPrompt(BasePrompt):
@@ -79,7 +78,8 @@ class ToolsPrompt(BasePrompt):
         super().__init__(**data)
 
     def __str__(self):
+        tools_str = "\n".join(str(tool) for tool in self.tools)
         return f"""
 # {self.name}
-{str(tool) for tool in self.tools}
+{tools_str}
 """
