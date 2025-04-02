@@ -69,7 +69,6 @@ class MemoryBank:
                 pass
 
     def _save_to_storage(self) -> None:
-        """保存记忆到文件"""
         if self.storage_path:
             with open(self.storage_path, "w") as f:
                 json.dump(
@@ -82,19 +81,44 @@ class MemoryBank:
         """添加新记忆并返回ID"""
         self.memories[memory.id] = memory
         self._save_to_storage()
-        return memory.id
+        return f"添加记忆成功，具体参数如下：{memory.to_dict()}"
     
-    def forget(self, memory_id: str) -> bool:
+    def delete_memory(self, memory_id: str) -> bool:
         """删除记忆"""
         if memory_id in self.memories:
+            memory_dict = self.memories[memory_id].to_dict()
             del self.memories[memory_id]
             self._save_to_storage()
-            return True
-        return False
+            return f"删除记忆成功，具体参数如下：{memory_dict}"
+        return f"删除记忆失败，ID<{memory_id}>不存在"
 
-    def get_memory(self, memory_id: str) -> Optional[Memory]:
+    def search_memory_by_id(self, memory_id: str) -> Optional[Memory]:
         """根据ID获取记忆"""
-        return self.memories.get(memory_id)
+        return f"查找记忆成功，具体参数如下：{self.memories.get(memory_id, 'ID<{memory_id}>不存在').to_dict()}"
     
-    def search_memory(self, query: str) -> List[Memory]:
-        pass
+def execute_memory_actions(memory_bank: MemoryBank, actions: List[Dict]):
+    results = []
+    available_actions = {
+        'add_memory': memory_bank.add_memory,
+        'delete_memory': memory_bank.delete_memory,
+        'search_memory_by_id': memory_bank.search_memory_by_id,
+    }
+    for action in actions:
+        action_name = action["action"]
+        action_args = action["args"]
+        
+        if action_name in available_actions:
+            result = available_actions[action_name](action_args)
+            results.append({
+                'action': action_name,
+                'args': action_args,
+                'result': result
+            })
+        else:
+            results.append({
+                'action': action_name,
+                'args': action_args,
+                'result': f"操作<{action_name}>不存在"
+            })
+            
+    return results

@@ -17,14 +17,14 @@ class SystemPrompt(BasePrompt):
         self.content: str = content
 
     def __str__(self):
-        return f"====\n{self.name}\n{self.content}\n" if self.content else None
+        return f"====\n{self.name}\n{self.content}" if self.content else None
 
 class QueryPrompt(BasePrompt):
 
-    def __init__(self, query):
-        self.name: str = "QUERY" 
+    def __init__(self,content):
+        self.name: str = "QUERY"
         self.description: str = "User's query is provided as following:"
-        self.content: str = query
+        self.content: str = content
 
 
 class ToolUsePrompt(BasePrompt):
@@ -142,3 +142,23 @@ class MemoriesPrompt(BasePrompt):
 {self.description}
 {memories_str}
 """
+
+
+def generate_prompts( conversation,query: str = None, tools=None, memory_bank=None, system_prompt=None) -> str:
+        prompt_list = []
+        if conversation.is_empty():
+            if system_prompt:
+                prompt_list.append(SystemPrompt(system_prompt))
+            if query:
+                prompt_list.append(QueryPrompt(query))
+            if tools:
+                prompt_list.append(ToolsPrompt(tools=tools))
+            if memory_bank:
+                prompt_list.append(MemoriesPrompt(memory_bank=memory_bank))
+        else:
+            if query:
+                prompt_list.append(QueryPrompt(query=query))
+        prompt_content = ''
+        for prompt in prompt_list:
+            prompt_content += str(prompt)
+        return prompt_content
