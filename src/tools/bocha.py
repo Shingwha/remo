@@ -7,9 +7,9 @@ from datetime import datetime
 class BochaSearch(Tool):
 
     def __init__(self,api_key:str):
-        self.api_key = api_key
-        self.name = "bocha_search"
-        self.description = "Search news and information from Bocha_search_tool"
+        self.api_key:str = api_key
+        self.name:str = "bocha_search"
+        self.description:str = "Search news and information from Bocha_search_tool"
         self.parameters:list = [
             {
                 "name": "query",
@@ -42,6 +42,8 @@ class BochaSearch(Tool):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
+        # 打印请求的详细信息
+        print(response.request.url)
         raw_data = response.json()
 
         if raw_data.get("code") == 200:

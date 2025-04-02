@@ -7,17 +7,24 @@ class BasePrompt():
     content: str = None
 
     def __str__(self):
-        return f"""
-====
-{self.name if self.name else ""}
-{self.description if self.description else ""}
-{self.content if self.content else ""} 
-====
-"""
+        return f"====\n{self.name or ''}\n{self.description or ''}\n{self.content}\n" if self.content else None
+
 
 class SystemPrompt(BasePrompt):
-    name: str = "SYSTEM PROMPT"
+    
+    def __init__(self,content):
+        self.name: str = "SYSTEM_PROMPT"
+        self.content: str = content
 
+    def __str__(self):
+        return f"====\n{self.name}\n{self.content}\n" if self.content else None
+
+class QueryPrompt(BasePrompt):
+
+    def __init__(self, query):
+        self.name: str = "QUERY" 
+        self.description: str = "User's query is provided as following:"
+        self.content: str = query
 
 
 class ToolUsePrompt(BasePrompt):
@@ -97,10 +104,41 @@ class ToolsPrompt(BasePrompt):
     def __str__(self):
         tools_str = "".join(str(ToolPrompt(tool)) for tool in self.tools)
         return f"""
-====
 {str(self.tool_use_prompt)}
 # {self.name}
 {self.description}
 {tools_str}
+"""
+
+
+class MemoryPrompt(BasePrompt):
+    def __init__(self, memory):
+        self.memory = memory
+        self.name = f"Memory: {self.memory.type}"
+        self.summary = self.memory.summary
+        self.id = self.memory.id
+        self.time = self.memory.time.get('created', '') if self.memory.time else ''
+
+    def __str__(self):
+        return f"""
+## {self.name}
+Summary: {self.summary}
+ID: {self.id}
+Time: {self.time}
+"""
+
+
+class MemoriesPrompt(BasePrompt):
+    name: str = "Memories"
+    def __init__(self, memory_bank):
+        self.description = "Relevant memories:"
+        self.memory_bank = memory_bank
+
+    def __str__(self):
+        memories_str = "".join(str(MemoryPrompt(mem)) for mem in self.memory_bank)
+        return f"""
 ====
+# {self.name}
+{self.description}
+{memories_str}
 """

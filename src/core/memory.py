@@ -1,16 +1,16 @@
-from typing import List,Dict, Optional
+from typing import List,Dict, Optional,Literal
 from datetime import datetime
 import json
-
+import uuid
 
 class Memory:
     
     def __init__(self,
-        type: str,
         summary: str,
-        keywords: List[str],
+        keywords: List[str] = None,
         time: Optional[Dict[str, str]] = None,
         conversation: Optional[str] = None,
+        type: Literal["LTM","TASK","TODO"] = "LTM",
         **kwargs):
         self.type = type
         self.summary = summary
@@ -20,8 +20,9 @@ class Memory:
         self.id = self._generate_id()
 
     def _generate_id(self):
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        return f"{self.type}_{timestamp}"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M")
+        unique_suffix = uuid.uuid4().hex[:2]  # 取UUID的hex表示的前2位
+        return f"{self.type}_{timestamp}_{unique_suffix}"
 
     def to_dict(self):
         return {
@@ -48,10 +49,13 @@ class Memory:
 
 
 class MemoryBank:
-    def __init__(self, storage_path: str):
-        self.memories = []
+    def __init__(self, storage_path: str=None):
+        self.memories = {}
         self.storage_path = storage_path
         self._load_memories()
+
+    def __iter__(self):
+        return iter(self.memories.values())
 
     def _load_memories(self):
         if self.storage_path:
@@ -94,4 +98,3 @@ class MemoryBank:
     
     def search_memory(self, query: str) -> List[Memory]:
         pass
-
