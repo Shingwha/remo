@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import datetime
 
 @dataclass
 class BasePrompt():
@@ -74,8 +75,9 @@ class MemoryActionPrompt(BasePrompt):
     
     def __init__(self):
         self.name: str = "MEMORY ACTION"
-        self.description: str = """
+        self.description: str = f"""
 When you need to manage memories (add, delete or search), you can use memory actions according to the following requirements.
+Please remember current time is {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")}.
 Please do not output memory action format you do not want to use actually, or it will cause errors.
 """
         self.content: str = '''
@@ -116,11 +118,12 @@ class MemoryActionsPrompt(BasePrompt):
         self.description = "Available memory actions:"
         self.content = """
 ## add_memory_by_args
-Description: if you or User want to add a memory, you can use this tool
+Description: if you or User want to add a memory,or if User want you to memorize something, you can use this tool to add a memory
 Parameters:
 - summary: (required) Summary text of the memory
 - type: (optional) Memory type (LTM/TASK/TODO), default is LTM
 - keywords: (optional) List of keywords
+- time: (optional) Time of reminded ,format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
 
 ## delete_memory_by_id
 Description: if you or User want to delete a memory, you can use this tool
@@ -139,6 +142,7 @@ Parameters:
 - summary: (optional) New summary text of the memory
 - type: (optional) New memory type (LTM/TASK/TODO)
 - keywords: (optional) New list of keywords
+- time: (optional) New time of reminded, format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
 """
 
 
@@ -189,7 +193,7 @@ class MemoryPrompt(BasePrompt):
         self.name = f"Memory: {self.memory.type}"
         self.summary = self.memory.summary
         self.id = self.memory.id
-        self.time = self.memory.time.get('created', '') if self.memory.time else ''
+        self.time = self.memory.time or ""
 
     def __str__(self):
         return f"""

@@ -29,11 +29,9 @@ class Conversation():
 
     def add_user_message(self, content: str) -> None:
         self.add_message(Message(role="user", content=content))
-        print(f"User: {content}")
 
     def add_assistant_message(self, content: str) -> None:
         self.add_message(Message(role="assistant", content=content))
-        print(f"Assistant: {content}")
 
     def clear(self) -> None:
         self.messages = []
