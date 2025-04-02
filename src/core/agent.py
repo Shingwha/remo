@@ -16,12 +16,15 @@ class Agent():
     memory_bank: MemoryBank = None
 
     def generate(self, query: str = None):
-        content = generate_prompts(
-            query=query,
-            conversation=self.conversation,
-            system_prompt=self.system_prompt,
-            tools=self.tools,
-            memory_bank=self.memory_bank)
+        if self.conversation.is_empty():
+            content = generate_prompts(
+                query=query,
+                system_prompt=self.system_prompt,
+                tools=self.tools,
+                memory_bank=self.memory_bank)
+        else:
+            content = query
+        
         self.conversation.add_user_message(content)
         while True:
             response = self.llm.generate(self.conversation.to_dict())
@@ -29,13 +32,13 @@ class Agent():
             self.conversation.add_assistant_message(content)
             parsed_response = parse_response(content)
             if parsed_response:
+                results = []
                 if parsed_response['tool_calls']:
-                    results = execute_tools(parsed_response['tool_calls'], self.tools)
+                    results.append(execute_tools(parsed_response['tool_calls'], self.tools))
                     self.conversation.add_user_message(str(results))
-                elif parsed_response['memory_actions'] and self.memory_bank:
-                        execute_memory_actions(parsed_response['memory_actions'], self.memory_bank)
-                else:
-                    break
+                if parsed_response['memory_actions']:
+                    results.append(execute_memory_actions( self.memory_bank,parsed_response['memory_actions']))
+                self.conversation.add_user_message(str(results))
             else:
                 break
 

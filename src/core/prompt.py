@@ -70,6 +70,78 @@ If you want to use multiple tools, you can directly output the structured parame
 '''
 
 
+class MemoryActionPrompt(BasePrompt):
+    
+    def __init__(self):
+        self.name: str = "MEMORY ACTION"
+        self.description: str = """
+When you need to manage memories (add, delete or search), you can use memory actions according to the following requirements.
+Please do not output memory action format you do not want to use actually, or it will cause errors.
+"""
+        self.content: str = '''
+# Memory Actions Formatting
+
+Memory actions are formatted using XML-style tags similar to tool use. Here's the structure:
+"""
+<action_name>
+<arg1_name>value1</arg1_name>
+<arg2_name>value2</arg2_name>
+<action_name>
+"""
+For example:
+"""
+<add_memory>
+<summary>This is a test memory</summary>
+<type>LTM</type>
+<add_memory>
+"""
+You can output multiple memory actions if needed:
+"""
+<action1>
+<arg1_name>value1</arg1_name>
+<arg2_name>value2</arg2_name>
+<action1>
+"""
+<action2>
+<arg1_name>value1</arg1_name>
+<arg2_name>value2</arg2_name>
+<action2>
+"""
+'''
+
+
+class MemoryActionsPrompt(BasePrompt):
+    def __init__(self):
+        self.name = "Memory Actions"
+        self.description = "Available memory actions:"
+        self.content = """
+## add_memory_by_args
+Description: if you or User want to add a memory, you can use this tool
+Parameters:
+- summary: (required) Summary text of the memory
+- type: (optional) Memory type (LTM/TASK/TODO), default is LTM
+- keywords: (optional) List of keywords
+
+## delete_memory_by_id
+Description: if you or User want to delete a memory, you can use this tool
+Parameters: 
+- id: (required) Memory ID to delete
+
+## search_memory_by_id
+Description: if you or User want to get more information about a memory, you can use this tool
+Parameters:
+- id: (required) Memory ID to search
+
+## update_memory_by_id
+Description: if User want to update a memory or you have a wrong memory, you can use this tool
+Parameters:
+- id: (required) Memory ID to update
+- summary: (optional) New summary text of the memory
+- type: (optional) New memory type (LTM/TASK/TODO)
+- keywords: (optional) New list of keywords
+"""
+
+
 class ToolPrompt(BasePrompt):
     def __init__(self,tool):
         self.tool = tool
@@ -133,31 +205,31 @@ class MemoriesPrompt(BasePrompt):
     def __init__(self, memory_bank):
         self.description = "Relevant memories:"
         self.memory_bank = memory_bank
+        self.memory_action_prompt = MemoryActionPrompt()
+        self.memory_actions_prompt = MemoryActionsPrompt()
 
     def __str__(self):
         memories_str = "".join(str(MemoryPrompt(mem)) for mem in self.memory_bank)
         return f"""
 ====
+{str(self.memory_action_prompt)}
+{str(self.memory_actions_prompt)}
 # {self.name}
 {self.description}
 {memories_str}
 """
 
 
-def generate_prompts( conversation,query: str = None, tools=None, memory_bank=None, system_prompt=None) -> str:
+def generate_prompts(query: str = None, tools=None, memory_bank=None, system_prompt=None) -> str:
         prompt_list = []
-        if conversation.is_empty():
-            if system_prompt:
-                prompt_list.append(SystemPrompt(system_prompt))
-            if query:
-                prompt_list.append(QueryPrompt(query))
-            if tools:
-                prompt_list.append(ToolsPrompt(tools=tools))
-            if memory_bank:
-                prompt_list.append(MemoriesPrompt(memory_bank=memory_bank))
-        else:
-            if query:
-                prompt_list.append(QueryPrompt(query=query))
+        if system_prompt:
+            prompt_list.append(SystemPrompt(system_prompt))
+        if query:
+            prompt_list.append(QueryPrompt(query))
+        if tools:
+            prompt_list.append(ToolsPrompt(tools=tools))
+        if memory_bank:
+            prompt_list.append(MemoriesPrompt(memory_bank=memory_bank))
         prompt_content = ''
         for prompt in prompt_list:
             prompt_content += str(prompt)
