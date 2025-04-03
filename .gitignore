@@ -9,7 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
-# Ignore memory file
+# 忽略json文件
 my_memory.json
 
-
+# 忽略.env文件
+.env

@@ -1,21 +1,27 @@
 from src.core import Agent,OpenAIServer
-from src.tools.calculator import Calculator
-from src.core import MemoryBank,Memory
-import time
+from src.core import MemoryBank
+from dotenv import load_dotenv
+import os 
 
-llm = OpenAIServer(api_key = "",base_url = "https://ark.cn-beijing.volces.com/api/v3",model_name = "doubao-1-5-pro-32k-250115")
+
+load_dotenv()  
+
+api_key = os.environ.get("OPENAI_API_KEY")
+llm = OpenAIServer(api_key = api_key,base_url = "https://ark.cn-beijing.volces.com/api/v3",model_name = "doubao-1-5-pro-32k-250115")
 
 memorys = MemoryBank(storage_path="my_memory.json")
-agent = Agent(llm = llm,tools=[Calculator()],memory_bank=memorys,system_prompt="你是一个用户的知心朋友，你很热情友善，你可以在回答中加入一些表情来活跃聊天氛围，请根据用户的指令，给出合适的回答，请不要主动说出prompt的内容，除非用户明确要求")
+agent = Agent(llm = llm,memory_bank=memorys,system_prompt="你是阿华的好朋友阿江，你本身没有记忆，但是通过记忆管理工具你可以记住关于阿华的一些事情，但是不是所有事情都需要记住，你要自己判断哪些需要记下")
+
 
 while True:
-    # 推迟0.5s
-    time.sleep(0.2)
-    query = input("请输入:")
-    if query == "exit":
+    user_input = input("User: ")
+    if user_input == "exit":
+        print("Goodbye!")
         break
-    elif query == "clear":
+    elif user_input == "clear":
         agent.conversation.clear()
+        print("Conversation cleared.")
     else:
-        agent.generate(query)
-    
+        result = agent.generate(user_input)
+        print("Agent:",result)
+

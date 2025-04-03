@@ -119,6 +119,7 @@ class MemoryActionsPrompt(BasePrompt):
         self.content = """
 ## add_memory_by_args
 Description: if you or User want to add a memory,or if User want you to memorize something, you can use this tool to add a memory
+Add only what you'll truly need later—future tasks, key info, or meaningful reminders.
 Parameters:
 - summary: (required) Summary text of the memory
 - type: (optional) Memory type (LTM/TASK/TODO), default is LTM
@@ -143,6 +144,7 @@ Parameters:
 - type: (optional) New memory type (LTM/TASK/TODO)
 - keywords: (optional) New list of keywords
 - time: (optional) New time of reminded, format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
+- status: (optional) New status of the memory (done/undone) if a TODO or TASK has done, you can update the status to done
 """
 
 

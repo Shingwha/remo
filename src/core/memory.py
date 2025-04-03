@@ -12,6 +12,7 @@ class Memory:
         time: Optional[Dict[str, str]] = None,
         conversation: Optional[str] = None,
         type: Literal["LTM", "TASK", "TODO"] = "LTM",
+        status: Optional[Literal["done", "undone"]] = "undone",
         **kwargs,
     ):
         self.type = type
@@ -20,6 +21,7 @@ class Memory:
         self.time = time
         self.conversation = conversation
         self.id = self._generate_id()
+        self.status = status
 
     def _generate_id(self):
         timestamp = datetime.now().strftime("%Y%m%d%H%M")
@@ -40,6 +42,7 @@ class Memory:
             "time": self.time,
             "conversation": self.conversation,
             "id": self.id,
+            "status": self.status,
         }
 
     @classmethod
@@ -51,6 +54,7 @@ class Memory:
             time=data["time"],
             conversation=data["conversation"],
             id=data["id"],
+            status=data["status"],
         )
 
 
