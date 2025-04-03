@@ -11,7 +11,7 @@ class Memory:
         keywords: List[str] = None,
         time: Optional[Dict[str, str]] = None,
         conversation: Optional[str] = None,
-        type: Literal["LTM", "TASK", "TODO"] = "LTM",
+        type: Literal["USER", "SYSTEM", "TODO"] = "TODO",
         status: Optional[Literal["done", "undone"]] = "undone",
         **kwargs,
     ):

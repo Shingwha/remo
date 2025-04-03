@@ -71,7 +71,7 @@ If you want to use multiple tools, you can directly output the structured parame
 '''
 
 
-class MemoryActionPrompt(BasePrompt):
+class MemoryActionRulesPrompt(BasePrompt):
     
     def __init__(self):
         self.name: str = "MEMORY ACTION"
@@ -214,7 +214,7 @@ class MemoriesPrompt(BasePrompt):
     def __init__(self, memory_bank):
         self.description = "Relevant memories:"
         self.memory_bank = memory_bank
-        self.memory_action_prompt = MemoryActionPrompt()
+        self.memory_action_prompt = MemoryActionRulesPrompt()
         self.memory_actions_prompt = MemoryActionsPrompt()
 
     def __str__(self):

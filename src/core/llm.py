@@ -17,6 +17,18 @@ class BaseLLM:
     frequency_penalty: float = None
     client: Any = None
 
+    def copy(self):
+        return self.__class__(
+            api_key=self.api_key,
+            base_url=self.base_url,
+            model_name=self.model_name,
+            stream=self.stream,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            top_p=self.top_p,
+            frequency_penalty=self.frequency_penalty,
+        )
+
 
 class OpenAIServer(BaseLLM):
 
