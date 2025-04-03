@@ -122,7 +122,10 @@ Description: if you or User want to add a memory,or if User want you to memorize
 Add only what you'll truly need later—future tasks, key info, or meaningful reminders.
 Parameters:
 - summary: (required) Summary text of the memory
-- type: (optional) Memory type (LTM/TASK/TODO), default is LTM
+- type: (required) Memory type (USER/SYSTEM/TODO). 
+    - USER: For personal user information, preferences, and facts
+    - SYSTEM: For your own information, preferences, and facts
+    - TODO: For tasks and reminders
 - keywords: (optional) List of keywords
 - time: (optional) Time of reminded ,format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
 
