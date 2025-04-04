@@ -90,13 +90,6 @@ Memory actions are formatted using XML-style tags similar to tool use. Here's th
 <arg2_name>value2</arg2_name>
 <action_name>
 """
-For example:
-"""
-<add_memory>
-<summary>This is a test memory</summary>
-<type>LTM</type>
-<add_memory>
-"""
 You can output multiple memory actions if needed:
 """
 <action1>
@@ -128,6 +121,7 @@ Parameters:
     - TODO: For tasks and reminders
 - keywords: (optional) List of keywords
 - time: (optional) Time of reminded ,format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
+- status: (optional) Status of the memory,you can set anything you want, eg.if you want to remind user a TODO, you can set status to "待提醒用户"
 
 ## delete_memory_by_id
 Description: if you or User want to delete a memory, you can use this tool
@@ -144,10 +138,10 @@ Description: if User want to update a memory or you have a wrong memory, you can
 Parameters:
 - id: (required) Memory ID to update
 - summary: (optional) New summary text of the memory
-- type: (optional) New memory type (LTM/TASK/TODO)
+- type: (optional) New memory type (USER/SYSTEM/TODO)
 - keywords: (optional) New list of keywords
 - time: (optional) New time of reminded, format: YYYY-MM-DDTHH:MM, if not provided, the time must not be current time
-- status: (optional) New status of the memory (done/undone) if a TODO or TASK has done, you can update the status to done
+- status: (optional) New status of the memory,you can set anything you want, eg. "已提醒用户但还不知道是否完成" or "已提醒用户这件事并且用户已完成"
 """
 
 
@@ -199,20 +193,24 @@ class MemoryPrompt(BasePrompt):
         self.summary = self.memory.summary
         self.id = self.memory.id
         self.time = self.memory.time or ""
+        self.status = self.memory.status or ""
+        self.keywords = self.memory.keywords or ""
 
     def __str__(self):
         return f"""
 ## {self.name}
-Summary: {self.summary}
 ID: {self.id}
+Summary: {self.summary}
+Keywords: {self.keywords}
 Time: {self.time}
+Status: {self.status}
 """
 
 
 class MemoriesPrompt(BasePrompt):
     name: str = "Memories"
     def __init__(self, memory_bank):
-        self.description = "Relevant memories:"
+        self.description = "Please remember SYSTEM is youself,Relevant memories:"
         self.memory_bank = memory_bank
         self.memory_action_prompt = MemoryActionRulesPrompt()
         self.memory_actions_prompt = MemoryActionsPrompt()

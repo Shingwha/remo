@@ -12,7 +12,7 @@ class Memory:
         time: Optional[Dict[str, str]] = None,
         conversation: Optional[str] = None,
         type: Literal["USER", "SYSTEM", "TODO"] = "TODO",
-        status: Optional[Literal["done", "undone"]] = "undone",
+        status: Optional[Literal["待更新"]] = "待更新",
         **kwargs,
     ):
         self.type = type
@@ -70,7 +70,7 @@ class MemoryBank:
     def _load_memories(self):
         if self.storage_path:
             try:
-                with open(self.storage_path, "r") as f:
+                with open(self.storage_path, "r", encoding='utf-8') as f:
                     content = f.read()
                     if content.strip():
                         data = json.loads(content)
