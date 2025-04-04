@@ -22,17 +22,16 @@ class Calculator(Tool):
 '''
         self.func = self.calculate_expression
 
-    def calculate_expression(self, args):
-        """计算数学表达式的函数"""
-        expr = args.get('expression')
-        if not expr:
+    def calculate_expression(self, expression:str):
+        
+        if not expression:
             return "Error: Missing expression parameter"
         
         # 安全检查：只允许基本数学运算和数字
-        if not re.match(r'^[\d+\-*/().\s]+$', expr):
+        if not re.match(r'^[\d+\-*/().\s]+$', expression):
             return "Error: Invalid characters in expression"
             
         try:
-            return str(eval(expr))
+            return str(eval(expression))
         except Exception as e:
             return f"Error: {str(e)}"

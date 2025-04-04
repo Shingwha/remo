@@ -1,15 +1,13 @@
 from ..core.tool import Tool
 import requests
-import json
-from datetime import datetime
 
 
-class BochaSearch(Tool):
+class BochaWebSearch(Tool):
 
     def __init__(self,api_key:str):
         self.api_key:str = api_key
         self.name:str = "bocha_search"
-        self.description:str = "Search news and information from Bocha_search_tool"
+        self.description:str = "Search news and information from this tool"
         self.parameters:list = [
             {
                 "name": "query",
@@ -23,65 +21,22 @@ class BochaSearch(Tool):
 <query>something you want to search</query>
 </bocha_search>
         """
-        self.func = self.bocha_search
+        self.func = self.bocha_web_search   
 
 
-    def bocha_search(self, query):
+    def bocha_web_search(self, query:str):
+
         url = "https://api.bochaai.com/v1/web-search"
-        payload = json.dumps(
-            {
-                "query": query,
-                "freshness": "noLimit",
-                "summary": True,
-                "count": 20,
-            }
-        )
-        headers = {
-            "Authorization": self.api_key,
-            "Content-Type": "application/json",
+        payload = {
+            "query": query,
+            "summary": True,
+            "count": 20,
+            "page": 1
         }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        # 打印请求的详细信息
-        print(response.request.url)
-        raw_data = response.json()
-
-        if raw_data.get("code") == 200:
-            filtered_results = []
-            formatted_results = []
-            # 直接访问 webPages.value 数组
-            for item in raw_data.get("data", {}).get("webPages", {}).get("value", []):
-                # 处理日期格式
-                date_str = item.get("dateLastCrawled")
-                try:
-                    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
-                except (ValueError, TypeError):
-                    date = None
-
-                filtered = {
-                    "name": item.get("name"),
-                    "url": item.get("url"),
-                    "snippet": item.get("snippet"),
-                    "summary": item.get("summary"),
-                    "dateLastCrawled": date,
-                }
-                filtered_results.append(filtered)
-
-            # 按日期倒序排列
-            filtered_results.sort(key=lambda x: x["dateLastCrawled"], reverse=True)
-
-            # 格式化每条新闻信息
-            for idx, item in enumerate(filtered_results, start=1):
-                formatted = (
-                    f"新闻 {idx}:\n"
-                    f"标题: {item['name']}\n"
-                    f"链接: {item['url']}\n"
-                    f"摘要: {item['snippet']}\n"
-                    f"总结: {item['summary']}\n"
-                    f"时间: {item['dateLastCrawled'].strftime('%Y-%m-%d %H:%M:%S') if item['dateLastCrawled'] else '未知'}"
-                )
-                formatted_results.append(formatted)
-
-            return formatted_results
-        else:
-            return raw_data
+        Bearer_api_key = "Bearer "+self.api_key
+        headers = {
+        'Authorization': Bearer_api_key,
+        'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=payload, headers=headers)
+        return response.json()

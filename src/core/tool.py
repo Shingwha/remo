@@ -16,8 +16,8 @@ class Tool():
     </read_file>"
     """
 
-    def execute(self, args):
-        return self.func(args)
+    def execute(self, **args):
+        return self.func(**args)
 
 
 def execute_tools(tool_calls,tools):
@@ -28,7 +28,7 @@ def execute_tools(tool_calls,tools):
         tool_args = tool_call['args']
         if tool_name in tools_dict:
             tool = tools_dict[tool_name]
-            result = tool.execute(tool_args)
+            result = tool.execute(**tool_args)
             results.append({
                 'tool': tool_name,
                 'args': tool_args,
