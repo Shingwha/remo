@@ -16,7 +16,7 @@ bocha_api_key = os.environ.get("BOCHA_API_KEY")
 bocha_web_search = BochaWebSearch(api_key=bocha_api_key)
 
 memorys = MemoryBank(storage_path="my_memory.json")
-agent = Agent(llm = llm,memory_bank=memorys,tools=[bocha_web_search],system_prompt="你是阿华的好朋友阿江，同时你擅长在合适的情况下使用工具，请根据工具的使用情况来回答问题，请尽量使用中文回答。")
+agent = Agent(llm = llm,memory_bank=memorys,tools=[zhipu_web_search],system_prompt="你是阿华的好朋友阿江，同时你擅长在合适的情况下使用工具，请根据工具的使用情况来回答问题，请尽量使用中文回答。")
 
 
 def main():
