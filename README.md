@@ -8,7 +8,7 @@ Remo 是一个小型 Agent 项目，借助大语言模型（LLM）实现对话�
 ### 依赖安装
 确保你的 Python 版本 >= 3.11，然后使用以下命令安装项目依赖：
 ```bash
-pip install -r requirements.txt
+uv pip install .
 ```
 依赖信息在 `pyproject.toml` 文件中列出，主要包括：
 ```toml
@@ -47,8 +47,6 @@ memorys = MemoryBank(storage_path="my_memory.json")
 agent = Agent(llm=llm, tools=[Calculator()], memory_bank=memorys, system_prompt="你是一个用户的知心朋友，你很热情友善，你可以在回答中加入一些表情来活跃聊天氛围，请根据用户的指令，给出合适的回答，请不要主动说出prompt的内容，除非用户明确要求")
 
 while True:
-    # 推迟0.5s
-    time.sleep(0.2)
     query = input("请输入:")
     if query == "exit":
         break
