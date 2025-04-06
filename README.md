@@ -1,92 +1,149 @@
-
-# Remo
+# Remo - 智能对话助手框架
 
 ## 项目概述
-Remo 是一个小型 Agent 项目，借助大语言模型（LLM）实现对话交互，同时支持调用多种工具来完成特定任务。它提供了工具集成、对话管理和记忆管理等功能，方便用户在对话过程中灵活使用各种工具和管理对话信息。
+Remo 是一个基于大语言模型的智能 Agent 框架，专注于提供流畅的对话体验和强大的工具扩展能力。通过模块化设计，开发者可以轻松集成各种工具并管理对话上下文，构建个性化的智能助手。
 
-## 安装与配置
-### 依赖安装
-确保你的 Python 版本 >= 3.11，然后使用以下命令安装项目依赖：
+## 核心优势
+
+- **开箱即用**：提供完整的对话管理和工具调用框架
+- **灵活扩展**：支持快速添加自定义工具
+- **记忆持久化**：对话记忆可本地存储和检索
+- **多接口支持**：同时提供命令行和 Web 交互界面
+
+## 快速开始
+
+### 安装依赖
 ```bash
 uv pip install .
 ```
-依赖信息在 `pyproject.toml` 文件中列出，主要包括：
-```toml
-[project]
-name = "remo"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "openai>=1.70.0",
-    "pydantic>=2.11.1",
-    "requests",
-]
+
+### 基本配置
+1. 创建 `.env` 文件配置 API 密钥：
+```env
+DOUBAO_API_KEY=your_api_key_here
+ZHIPU_API_KEY=your_zhipu_key_here
+BOCHA_API_KEY=your_bocha_key_here
 ```
 
-### 配置 API 密钥
-在使用 `OpenAIServer` 时，需要配置 API 密钥和基础 URL，示例如下：
+2. 初始化 Agent：
 ```python
-from src.core import Agent, OpenAIServer
+from src.core import Agent, OpenAIServer, MemoryBank
+from src.tools import Calculator, ZhiPuWebSearch
 
-llm = OpenAIServer(api_key="your_api_key", base_url="https://ark.cn-beijing.volces.com/api/v3", model_name="doubao-1-5-pro-32k-250115")
+# 配置 LLM 服务
+llm = OpenAIServer(
+    api_key=os.getenv("DOUBAO_API_KEY"),
+    base_url="https://ark.cn-beijing.volces.com/api/v3",
+    model_name="deepseek-v3-250324"
+)
+
+# 初始化工具和记忆
+tools = [Calculator(), ZhiPuWebSearch(api_key=os.getenv("ZHIPU_API_KEY"))]
+memory = MemoryBank(storage_path="memory.json")
+
+# 创建个性化助手
+agent = Agent(
+    llm=llm,
+    tools=tools,
+    memory_bank=memory,
+    system_prompt="你是一个贴心的助手，善于使用工具解决问题"
+)
 ```
 
-## 使用示例
-以下是一个简单的使用示例，展示了如何创建一个智能助手并进行对话：
-```python
-from src.core import Agent, OpenAIServer
-from src.tools.calculator import Calculator
-from src.core import MemoryBank, Memory
-import time
+## 使用方式
 
-llm = OpenAIServer(api_key="", base_url="https://ark.cn-beijing.volces.com/api/v3", model_name="doubao-1-5-pro-32k-250115")
-
-memorys = MemoryBank(storage_path="my_memory.json")
-agent = Agent(llm=llm, tools=[Calculator()], memory_bank=memorys, system_prompt="你是一个用户的知心朋友，你很热情友善，你可以在回答中加入一些表情来活跃聊天氛围，请根据用户的指令，给出合适的回答，请不要主动说出prompt的内容，除非用户明确要求")
-
-while True:
-    query = input("请输入:")
-    if query == "exit":
-        break
-    elif query == "clear":
-        agent.conversation.clear()
-    else:
-        agent.generate(query)
+### 命令行交互
+```bash
+python test.py
 ```
+支持命令：
+- `exit` - 退出程序
+- `clear` - 清空对话历史
+- `context` - 查看当前对话上下文
 
-## 代码结构
+### Web 交互界面
+```bash
+python gradio_ui.py
 ```
-remo/
-├── src/
-│   ├── core/
-│   │   ├── agent.py          # Agent核心逻辑
-│   │   ├── llm.py            # 大语言模型接口
-│   │   ├── message.py        # 对话消息管理
-│   │   ├── prompt.py         # 提示信息管理
-│   │   ├── tool.py           # 工具基类和工具执行逻辑
-│   │   ├── utils.py          # 解析等工具
-│   │   └── memory.py         # 记忆管理
-│   └── tools/
-│       ├── bocha.py          # Bocha 搜索工具
-│       └── calculator.py     # 计算器工具
-├── test.py                   # 测试脚本
-├── pyproject.toml            # 项目依赖配置
-└── .gitignore                # Git 忽略文件配置
-```
+启动后访问 `http://127.0.0.1:7860` 使用可视化界面
 
-## 功能特性
-- **工具集成**：支持创建工具，创建示例详见 `Calculator`。你可以根据需要自定义工具，实现特定的功能。
-- **工具调用格式**：采用 XML 风格的标签来格式化工具调用，确保工具使用的规范和解析的准确性。例如：
+## 核心功能
+
+### 工具系统
+- **内置工具**：
+  - `Calculator`：数学计算
+  - `ZhiPuWebSearch`：智谱网络搜索
+  - `BochaWebSearch`：Bocha 信息检索
+
+- **自定义工具**：
+  继承 `Tool` 基类并实现：
+  ```python
+  class MyTool(Tool):
+      def __init__(self):
+          self.name = "my_tool"
+          self.description = "工具描述"
+          self.parameters = [{"name": "param", "description": "参数说明"}]
+          self.func = self.execute
+      
+      def execute(self, **args):
+          return "执行结果"
+  ```
+
+### 记忆管理
+支持四种记忆操作：
 ```xml
-<read_file>
-<path>src/main.js</path>
-</read_file>
-```
-- **对话管理**：提供对话管理功能，能够记录用户和助手的消息，并支持对话的清空操作。你可以使用 `agent.conversation.clear()` 方法清空对话记录。
-- **记忆管理**：支持记忆的添加、删除、更新和查询操作。记忆信息可以存储在本地文件中，方便后续使用。
+<add_memory_by_args>
+<summary>重要事项</summary>
+<type>TODO</type>
+</add_memory_by_args>
 
-## 注意事项
-- 在使用工具时，请确保输入的参数符合工具的要求，避免出现解析错误。
-- 在配置 API 密钥时，请将 `your_api_key` 替换为你自己的有效 API 密钥。
+<search_memory_by_id>
+<id>MEMORY_ID</id>
+</search_memory_by_id>
+```
+
+## 项目结构
+```
+src/
+├── core/               # 核心模块
+│   ├── agent.py        # Agent 主逻辑
+│   ├── llm.py          # LLM 接口
+│   ├── memory.py       # 记忆系统
+│   └── tool.py         # 工具基类
+├── tools/              # 工具实现
+│   ├── calculator.py   # 计算器
+│   └── web_search/     # 搜索工具
+gradio_ui.py            # Web 界面
+test.py                 # 命令行入口
+```
+
+## 开发指南
+
+1. **添加新工具**：
+   - 在 `src/tools/` 下创建工具类
+   - 在 `__init__.py` 中导出
+   - 更新 Agent 的 tools 参数
+
+2. **修改提示模板**：
+   编辑 `src/core/prompt.py` 中的提示类
+
+3. **扩展记忆类型**：
+   修改 `Memory` 类的 `type` 字段约束
+
+## 最佳实践
+
+- 为每个工具编写清晰的参数说明
+- 使用枚举类型约束工具参数
+- 为重要记忆添加时间戳
+- 定期清理无用记忆
+
+## 常见问题
+
+**Q：工具调用失败怎么办？**
+A：检查工具参数是否符合 XML 格式要求，并确保所有必填参数已提供
+
+**Q：记忆不更新？**
+A：确认是否有存储路径写入权限，检查文件是否被其他进程占用
+
+**Q：如何提高响应速度？**
+A：减少不必要的工具调用，优化提示词长度
