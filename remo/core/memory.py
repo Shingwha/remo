@@ -82,7 +82,7 @@ class MemoryBank:
 
     def _save_to_storage(self) -> None:
         if self.storage_path:
-            with open(self.storage_path, "w") as f:
+            with open(self.storage_path, "w",encoding='utf-8') as f:
                 json.dump(
                     {mid: m.to_dict() for mid, m in self.memories.items()}, f, indent=2
                 )

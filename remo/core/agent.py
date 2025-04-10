@@ -38,7 +38,7 @@ class Agent():
                 if parsed_response['memory_actions']:
                     results.append(execute_memory_actions( self.memory_bank,parsed_response['memory_actions']))
                 print(results)
-                result_prompt = "以下为系统自动发送的一些操作之后的相关信息，请根据信息给出更好的回答：\n"
+                result_prompt = "以下为系统自动发送的一些操作之后的相关信息，若信息仍然不足以很好回复用户的问题，你可以再次执行工具调用和记忆操作，请根据信息给出更好的回答：\n"
                 self.conversation.add_user_message(result_prompt +str(results))
                 print("Actions:\n"+str(results))
             else:

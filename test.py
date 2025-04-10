@@ -1,22 +1,25 @@
-from src.core import Agent,OpenAIServer
-from src.core import MemoryBank
+from remo.core import Agent,OpenAIServer
+from remo.core import MemoryBank
 from dotenv import load_dotenv
 import os 
-from src.tools import ZhiPuWebSearch,BochaWebSearch
+from remo.tools import ZhiPuWebSearch,BochaWebSearch
 
 
 
 load_dotenv()  
-
+deepseek_chat = "deepseek-v3-250324"
+deepseek_r1 = "deepseek-r1-250120"
+deepseek_7b = "deepseek-r1-distill-qwen-7b-250120"
+deepseek_32b = "deepseek-r1-distill-qwen-32b-250120"
 llm_api_key = os.environ.get("DOUBAO_API_KEY")
-llm = OpenAIServer(api_key = llm_api_key,base_url = "https://ark.cn-beijing.volces.com/api/v3",model_name = "deepseek-v3-250324")
+llm = OpenAIServer(api_key = llm_api_key,base_url = "https://ark.cn-beijing.volces.com/api/v3",model_name = deepseek_chat)
 zhipu_api_key = os.environ.get("ZHIPU_API_KEY")
 zhipu_web_search = ZhiPuWebSearch(api_key=zhipu_api_key)
 bocha_api_key = os.environ.get("BOCHA_API_KEY")
 bocha_web_search = BochaWebSearch(api_key=bocha_api_key)
 
 memorys = MemoryBank(storage_path="my_memory.json")
-agent = Agent(llm = llm,memory_bank=memorys,tools=[zhipu_web_search],system_prompt="你是阿华的好朋友阿江，同时你擅长在合适的情况下使用工具，请根据工具的使用情况来回答问题，请尽量使用中文回答。")
+agent = Agent(llm = llm,memory_bank=memorys,tools=[zhipu_web_search],system_prompt="你是阿华的好朋友阿江")
 
 
 def main():
