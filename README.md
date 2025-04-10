@@ -27,8 +27,8 @@ BOCHA_API_KEY=your_bocha_key_here
 
 2. 初始化 Agent：
 ```python
-from src.core import Agent, OpenAIServer, MemoryBank
-from src.tools import Calculator, ZhiPuWebSearch
+from remo.core import Agent, OpenAIServer, MemoryBank
+from remo.tools import Calculator, ZhiPuWebSearch
 
 # 配置 LLM 服务
 llm = OpenAIServer(
@@ -104,7 +104,7 @@ python gradio_ui.py
 
 ## 项目结构
 ```
-src/
+remo/
 ├── core/               # 核心模块
 │   ├── agent.py        # Agent 主逻辑
 │   ├── llm.py          # LLM 接口
@@ -120,12 +120,12 @@ test.py                 # 命令行入口
 ## 开发指南
 
 1. **添加新工具**：
-   - 在 `src/tools/` 下创建工具类
+   - 在 `remo/tools/` 下创建工具类
    - 在 `__init__.py` 中导出
    - 更新 Agent 的 tools 参数
 
 2. **修改提示模板**：
-   编辑 `src/core/prompt.py` 中的提示类
+   编辑 `remo/core/prompt.py` 中的提示类
 
 3. **扩展记忆类型**：
    修改 `Memory` 类的 `type` 字段约束
